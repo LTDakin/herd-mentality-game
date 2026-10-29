@@ -1,4 +1,6 @@
+import json
 import os
+import random
 from pathlib import Path
 
 import uvicorn
@@ -16,6 +18,10 @@ from herd_mentality.auth import (
 )
 from herd_mentality.scoring import group_answers
 from herd_mentality.state import Game_State
+
+COW_FACTS = json.loads(
+    (Path(__file__).parent / "static" / "cow_facts.json").read_text(encoding="utf-8")
+)["facts"]
 
 app = FastAPI()
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
@@ -92,6 +98,7 @@ async def answered(request: Request, player_name: str = Depends(current_player))
             "answer": curr_player_answer,
             "is_wrangler": is_wrangler(player_name),
             "round": Game_State["round"],
+            "cow_fact": random.choice(COW_FACTS),
         },
     )
 
