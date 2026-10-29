@@ -29,8 +29,12 @@ def current_player(request: Request):
     return player_name
 
 
-def register_player(player_name: str):
+def register_player(player_name: str, wants_wrangler: bool = False):
     """Add the player's name to the game.
+
+    If `wants_wrangler` is set and the game has no wrangler yet, this player
+    becomes the wrangler (game master). The first wrangler wins, so a late
+    request cannot take the role from them.
 
     Returns (status_code, error_message), with status_code None on success.
     """
@@ -44,7 +48,14 @@ def register_player(player_name: str):
         return 409, f"{player_name} is already taken, pick another name."
 
     Game_State["player_names"].add(player_name)
+    if wants_wrangler and Game_State["wrangler"] is None:
+        Game_State["wrangler"] = player_name
     return None, None
+
+
+def is_wrangler(player_name: str | None) -> bool:
+    """True if this player is the game's wrangler."""
+    return player_name is not None and player_name == Game_State["wrangler"]
 
 
 def login_response(player_name: str) -> RedirectResponse:

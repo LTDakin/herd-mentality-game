@@ -1,0 +1,19 @@
+<!doctype html>
+<html>
+    <head>
+        <title>Herd Mentality &mdash; Answers</title>
+        <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+    </head>
+    <body>
+        <p>Playing as {{ player_name }}</p>
+        <h1>Answers</h1>
+        <ul>
+            {% for result in results %}
+            <li>
+                <strong>{{ result.player_name }}</strong>:
+                {% if result.answer is none %}did not answer{% else %}{{ result.answer }}{% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+    </body>
+</html>

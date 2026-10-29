@@ -2,10 +2,35 @@
 <html>
     <head>
         <title>Herd Mentality</title>
+        <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
     </head>
     <body>
         <p>Playing as {{ player_name }}</p>
         <p>Your answer: <strong>{{ answer }}</strong></p>
+        {% if is_wrangler %}
+        <form action="/game/reveal" method="post">
+            <button type="submit">Reveal</button>
+        </form>
+        {% else %}
         <p>Waiting for reveal&hellip;</p>
+        {% endif %}
+        <script>
+            // Poll until the wrangler reveals the answers, then show the scoreboard.
+            const checkStatus = async () => {
+                try {
+                    const response = await fetch("/game/status", {
+                        headers: { Accept: "application/json" },
+                    });
+                    if (!response.ok) return;
+                    const { revealed } = await response.json();
+                    if (revealed) {
+                        window.location.href = "/game/scoreboard";
+                    }
+                } catch (error) {
+                    // Network hiccup: just try again on the next tick.
+                }
+            };
+            setInterval(checkStatus, 2000);
+        </script>
     </body>
 </html>

@@ -10,6 +10,7 @@ def reset_game_state():
     """Give every test a clean game, so logins and answers never leak between tests."""
     Game_State["player_names"].clear()
     Game_State["answers"].clear()
+    Game_State["wrangler"] = None
     Game_State["revealed"] = False
     yield
 

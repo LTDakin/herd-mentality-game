@@ -1,12 +1,17 @@
 <!doctype html>
 <html>
     <head>
-        <title>Enter a name</title>
+        <title>Herd Mentality</title>
+        <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
     </head>
     <body><form action="/login" method="post">
         {% if error %}<p role="alert">{{ error }}</p>{% endif %}
         <label for="player_name">Enter a name!</label>
         <input type="text" id="player_name" name="player_name" required/>
+        {% if not wrangler_taken %}
+        <label for="wrangler">Check to be the Wrangler</label>
+        <input type="checkbox" id="wrangler" name="wrangler"/>
+        {% endif %}
         <button type="submit">Ready!</button>
     </form></body>
 </html>
