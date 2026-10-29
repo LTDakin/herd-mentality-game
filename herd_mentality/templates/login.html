@@ -1,4 +1,5 @@
 <!doctype html>
+{% from "_cow_rain.html" import cow_rain %}
 <html lang="en">
     <head>
         <meta charset="utf-8" />
@@ -8,6 +9,7 @@
         <link rel="stylesheet" href="/static/style.css" />
     </head>
     <body>
+        {{ cow_rain() }}
         <main class="card">
             <h1><span class="emoji" aria-hidden="true">🐄</span>Herd Mentality</h1>
             {% if error %}<p class="alert" role="alert">{{ error }}</p>{% endif %}
@@ -19,7 +21,7 @@
                 {% if not wrangler_taken %}
                 <label class="checkbox-row" for="wrangler">
                     <input type="checkbox" id="wrangler" name="wrangler" />
-                    Be the Wrangler
+                    🤠 Be the Wrangler
                 </label>
                 {% endif %}
                 <button type="submit">Ready!</button>

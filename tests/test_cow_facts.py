@@ -13,6 +13,11 @@ FACTS_FILE = (
 )
 
 
+def jinja_escape(text: str) -> str:
+    """Match Jinja2's HTML escaping, which uses &#39; for apostrophes."""
+    return escape(text, quote=True).replace("&#x27;", "&#39;")
+
+
 def test_facts_file_has_forty_entries():
     assert len(COW_FACTS) == 40
 
@@ -42,7 +47,7 @@ def test_answered_page_shows_a_cow_fact(logged_in_client: TestClient):
     response = logged_in_client.get("/game/answered")
 
     assert 'class="cow-fact"' in response.text
-    assert any(escape(entry["text"]) in response.text for entry in COW_FACTS)
+    assert any(jinja_escape(entry["text"]) in response.text for entry in COW_FACTS)
 
 
 def test_answered_page_labels_facts_and_jokes(logged_in_client: TestClient):

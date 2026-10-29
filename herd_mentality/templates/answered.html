@@ -1,4 +1,5 @@
 <!doctype html>
+{% from "_cow_rain.html" import cow_rain %}
 <html lang="en">
     <head>
         <meta charset="utf-8" />
@@ -8,6 +9,7 @@
         <link rel="stylesheet" href="/static/style.css" />
     </head>
     <body>
+        {{ cow_rain() }}
         <main class="card">
             <h1><span class="emoji" aria-hidden="true">🥛</span>Answer locked in</h1>
             <p class="answer">Your answer: <strong>{{ answer }}</strong></p>

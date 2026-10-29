@@ -30,15 +30,64 @@ html {
 body {
     margin: 0;
     min-height: 100vh;
+    /* Use the dynamic viewport where supported, so mobile browser chrome
+       (and the on-screen keyboard) doesn't clip the layout. */
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 1.5rem;
-    background: var(--bg);
+    background-color: var(--bg);
+    background-image: url("/static/cow_spots.svg");
+    background-repeat: repeat;
+    background-size: 280px 280px;
+    background-attachment: fixed;
     color: var(--ink);
     font-family: var(--font-stack);
     font-size: 1.25rem;
     line-height: 1.5;
+}
+
+/* ---------- Cow rain (decorative background) ---------- */
+
+.cow-rain {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.cow-rain-item {
+    position: absolute;
+    top: -3rem;
+    font-size: var(--size, 2rem);
+    line-height: 1;
+    opacity: 0.55;
+    animation: cow-fall var(--duration, 16s) linear var(--delay, 0s) infinite;
+}
+
+@keyframes cow-fall {
+    0% {
+        transform: translateY(-10vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.55;
+    }
+    90% {
+        opacity: 0.55;
+    }
+    100% {
+        transform: translateY(110vh) rotate(var(--spin, 360deg));
+        opacity: 0;
+    }
+}
+
+/* Keep the card above the falling emoji. */
+.card {
+    position: relative;
+    z-index: 1;
 }
 
 /* ---------- Card ---------- */
@@ -221,12 +270,29 @@ button:focus-visible {
     }
 }
 
+/* Small screens: the on-screen keyboard covers the lower half, so anchor the
+   card near the top instead of centring it. */
+@media (max-width: 600px) {
+    body {
+        align-items: flex-start;
+        padding: 1rem 1rem 2rem;
+        padding-top: max(4rem, env(safe-area-inset-top));
+    }
+
+    .card {
+        padding: 1.75rem 1.25rem;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .waiting {
         animation: none;
     }
     button {
         transition: none;
+    }
+    .cow-rain {
+        display: none;
     }
 }
 
