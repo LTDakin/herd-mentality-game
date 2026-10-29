@@ -28,7 +28,7 @@ def test_status_reports_not_revealed(client: TestClient):
     response = client.get("/game/status")
 
     assert response.status_code == 200
-    assert response.json() == {"revealed": False}
+    assert response.json()["revealed"] is False
 
 
 def test_status_requires_login(client: TestClient):

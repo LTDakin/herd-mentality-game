@@ -1,17 +1,29 @@
 <!doctype html>
-<html>
+<html lang="en">
     <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Herd Mentality</title>
         <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+        <link rel="stylesheet" href="/static/style.css" />
     </head>
-    <body><form action="/login" method="post">
-        {% if error %}<p role="alert">{{ error }}</p>{% endif %}
-        <label for="player_name">Enter a name!</label>
-        <input type="text" id="player_name" name="player_name" required/>
-        {% if not wrangler_taken %}
-        <label for="wrangler">Check to be the Wrangler</label>
-        <input type="checkbox" id="wrangler" name="wrangler"/>
-        {% endif %}
-        <button type="submit">Ready!</button>
-    </form></body>
+    <body>
+        <main class="card">
+            <h1><span class="emoji" aria-hidden="true">🐄</span>Herd Mentality</h1>
+            {% if error %}<p class="alert" role="alert">{{ error }}</p>{% endif %}
+            <form action="/login" method="post">
+                <div>
+                    <label class="label-text" for="player_name">Enter a name!</label>
+                    <input type="text" id="player_name" name="player_name" required />
+                </div>
+                {% if not wrangler_taken %}
+                <label class="checkbox-row" for="wrangler">
+                    <input type="checkbox" id="wrangler" name="wrangler" />
+                    Be the Wrangler
+                </label>
+                {% endif %}
+                <button type="submit">Ready!</button>
+            </form>
+        </main>
+    </body>
 </html>

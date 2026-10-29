@@ -90,6 +90,7 @@ async def answered(request: Request, player_name: str = Depends(current_player))
             "player_name": player_name,
             "answer": curr_player_answer,
             "is_wrangler": is_wrangler(player_name),
+            "round": Game_State["round"],
         },
     )
 
@@ -106,8 +107,20 @@ async def reveal(player_name: str = Depends(current_player)):
 
 @app.get("/game/status")
 async def game_status(player_name: str = Depends(current_player)):
-    """Polled by /game/answered so players notice when the round is revealed."""
-    return {"revealed": Game_State["revealed"]}
+    """Polled by the answered and scoreboard pages to detect round changes."""
+    return {"revealed": Game_State["revealed"], "round": Game_State["round"]}
+
+
+@app.post("/game/next-round")
+async def next_round(player_name: str = Depends(current_player)):
+    """Wrangler only: clear the round's answers and start the next one."""
+    if not is_wrangler(player_name):
+        return RedirectResponse("/game/scoreboard", status_code=303)
+
+    Game_State["answers"] = {}
+    Game_State["revealed"] = False
+    Game_State["round"] += 1
+    return RedirectResponse("/game", status_code=303)
 
 
 @app.get("/game/scoreboard")
@@ -120,7 +133,14 @@ async def scoreboard(request: Request, player_name: str = Depends(current_player
         for name in sorted(Game_State["player_names"])
     ]
     return templates.TemplateResponse(
-        request, "scoreboard.html", {"player_name": player_name, "results": results}
+        request,
+        "scoreboard.html",
+        {
+            "player_name": player_name,
+            "results": results,
+            "is_wrangler": is_wrangler(player_name),
+            "round": Game_State["round"],
+        },
     )
 
 

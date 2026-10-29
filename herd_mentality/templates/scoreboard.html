@@ -1,19 +1,53 @@
 <!doctype html>
-<html>
+<html lang="en">
     <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Herd Mentality &mdash; Answers</title>
         <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+        <link rel="stylesheet" href="/static/style.css" />
     </head>
     <body>
-        <p>Playing as {{ player_name }}</p>
-        <h1>Answers</h1>
-        <ul>
-            {% for result in results %}
-            <li>
-                <strong>{{ result.player_name }}</strong>:
-                {% if result.answer is none %}did not answer{% else %}{{ result.answer }}{% endif %}
-            </li>
-            {% endfor %}
-        </ul>
+        <main class="card">
+            <h1><span class="emoji" aria-hidden="true">🔔</span>Answers</h1>
+            <ul class="results">
+                {% for result in results %}
+                <li>
+                    <span class="name">{{ result.player_name }}</span>
+                    {% if result.answer is none %}
+                    <span class="answer-text is-empty">did not answer</span>
+                    {% else %}
+                    <span class="answer-text">{{ result.answer }}</span>
+                    {% endif %}
+                </li>
+                {% endfor %}
+            </ul>
+            {% if is_wrangler %}
+            <form action="/game/next-round" method="post">
+                <button type="submit">Next round</button>
+            </form>
+            {% else %}
+            <p class="waiting">Waiting for the next round&hellip;</p>
+            {% endif %}
+        </main>
+        <script>
+            // The page was rendered for this round; a newer round means it restarted.
+            const currentRound = {{ round }};
+            const checkStatus = async () => {
+                try {
+                    const response = await fetch("/game/status", {
+                        headers: { Accept: "application/json" },
+                    });
+                    if (!response.ok) return;
+                    const { round } = await response.json();
+                    if (round > currentRound) {
+                        window.location.href = "/game";
+                    }
+                } catch (error) {
+                    // Network hiccup: just try again on the next tick.
+                }
+            };
+            setInterval(checkStatus, 2000);
+        </script>
     </body>
 </html>

@@ -1,0 +1,257 @@
+/* Herd Mentality — black and white with a cow-pink accent. */
+
+:root {
+    --ink: #111111;
+    --paper: #ffffff;
+    --pink: #ff69b4;
+    --pink-dark: #e84f9c;
+    --pink-soft: #ffe4f0;
+    --muted: #6b6b6b;
+    --bg: #fdf7fa;
+
+    --radius-card: 24px;
+    --radius-input: 12px;
+    --radius-pill: 999px;
+
+    --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-stack);
+    font-size: 1.25rem;
+    line-height: 1.5;
+}
+
+/* ---------- Card ---------- */
+
+.card {
+    width: 100%;
+    max-width: 32rem;
+    padding: 2.5rem 2rem;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-card);
+    box-shadow: 0 12px 32px rgba(255, 105, 180, 0.22);
+    text-align: center;
+}
+
+.card > * + * {
+    margin-top: 1rem;
+}
+
+/* ---------- Type ---------- */
+
+h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+h1 .emoji {
+    display: block;
+    font-size: 2.75rem;
+    line-height: 1.1;
+    margin-bottom: 0.25rem;
+}
+
+.label-text {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.player {
+    margin: 0;
+    color: var(--muted);
+    font-size: 1rem;
+}
+
+/* ---------- Forms ---------- */
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0;
+}
+
+label {
+    font-weight: 600;
+    text-align: left;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font: inherit;
+    color: var(--ink);
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-input);
+    outline: none;
+}
+
+input[type="text"]:focus {
+    border-color: var(--pink);
+    box-shadow: 0 0 0 4px var(--pink-soft);
+}
+
+input[type="text"]::placeholder {
+    color: var(--muted);
+}
+
+/* Checkbox row: label and box side by side, centered. */
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.checkbox-row input[type="checkbox"] {
+    width: 1.35rem;
+    height: 1.35rem;
+    margin: 0;
+    accent-color: var(--pink);
+    cursor: pointer;
+}
+
+/* ---------- Buttons ---------- */
+
+button {
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    font: inherit;
+    font-weight: 700;
+    color: var(--ink);
+    background: var(--pink);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+button:hover {
+    background: var(--pink-dark);
+}
+
+button:active {
+    transform: translateY(2px);
+}
+
+button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--pink-soft);
+}
+
+/* ---------- Messages ---------- */
+
+.alert {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    background: var(--pink-soft);
+    border-left: 4px solid var(--pink);
+    border-radius: var(--radius-input);
+    font-size: 1rem;
+}
+
+.waiting {
+    margin: 0;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+    animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.45;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .waiting {
+        animation: none;
+    }
+    button {
+        transition: none;
+    }
+}
+
+/* ---------- Answered page ---------- */
+
+.answer {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.answer strong {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+/* ---------- Scoreboard ---------- */
+
+.results {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: left;
+}
+
+.results li {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    padding: 0.75rem 1rem;
+    background: var(--pink-soft);
+    border-radius: var(--radius-input);
+}
+
+.results .name {
+    font-weight: 700;
+}
+
+.results .answer-text {
+    color: var(--pink-dark);
+    font-weight: 600;
+    margin-left: auto;
+    text-align: right;
+}
+
+.results .answer-text.is-empty {
+    color: var(--muted);
+    font-weight: 400;
+    font-style: italic;
+}
