@@ -195,12 +195,16 @@ async def scoreboard(request: Request, player_name: str = Depends(current_player
 
 
 def main() -> None:
-    """Start the development server."""
+    """Start the server.
+
+    Binds to all interfaces by default so other devices on the local network
+    can reach the game. Set HOST=127.0.0.1 to keep it private to this machine.
+    """
     uvicorn.run(
         "herd_mentality.main:app",
-        host=os.environ.get("HOST", "127.0.0.1"),
+        host=os.environ.get("HOST", "0.0.0.0"),
         port=int(os.environ.get("PORT", "8000")),
-        reload=os.environ.get("RELOAD", "1") == "1",
+        reload=os.environ.get("RELOAD", "0") == "1",
     )
 
 
