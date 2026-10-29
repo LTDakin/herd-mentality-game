@@ -9,19 +9,42 @@
     </head>
     <body>
         <main class="card">
-            <h1><span class="emoji" aria-hidden="true">🔔</span>Answers</h1>
-            <ul class="results">
-                {% for result in results %}
-                <li>
-                    <span class="name">{{ result.player_name }}</span>
-                    {% if result.answer is none %}
-                    <span class="answer-text is-empty">did not answer</span>
-                    {% else %}
-                    <span class="answer-text">{{ result.answer }}</span>
-                    {% endif %}
+            <h1><span class="emoji" aria-hidden="true">🔔</span>The herd has spoken</h1>
+            <ul class="groups">
+                {% for group in groups %}
+                <li class="group{% if group.is_winner %} is-winner{% endif %}">
+                    <div class="group-header">
+                        <span class="group-answer">{{ group.answer }}</span>
+                        {% if group.is_winner %}
+                        <span class="medal" title="Biggest herd" aria-label="Biggest herd">🏅</span>
+                        {% endif %}
+                        <span class="group-count">
+                            {{ group.players | length }} player{% if group.players | length != 1 %}s{% endif %}
+                        </span>
+                    </div>
+                    <div class="group-names">
+                        {% for name in group.players %}
+                        <span class="group-name{% if name == player_name %} is-you{% endif %}">
+                            {{ name }}
+                            {% if group.is_unique %}
+                            <span class="badge-unique">Unique!</span>
+                            {% endif %}
+                        </span>
+                        {% endfor %}
+                    </div>
                 </li>
                 {% endfor %}
             </ul>
+            {% if no_answer %}
+            <div class="no-answer">
+                <h2 class="no-answer-heading">Did not answer</h2>
+                <div class="group-names">
+                    {% for name in no_answer %}
+                    <span class="group-name is-muted">{{ name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
             {% if is_wrangler %}
             <form action="/game/next-round" method="post">
                 <button type="submit">Next round</button>

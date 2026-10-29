@@ -126,7 +126,67 @@ def test_scoreboard_marks_players_who_did_not_answer(client: TestClient):
 
     response = client.get("/game/scoreboard")
 
-    assert "did not answer" in response.text
+    assert "Did not answer" in response.text
+    assert "bob" in response.text
+
+
+def test_scoreboard_groups_matching_answers_case_insensitively(client: TestClient):
+    login(client, "alice", wrangler=True)
+    client.post("/game/answer", data={"answer": "Corn"})
+
+    client.cookies.clear()
+    login(client, "bob")
+    client.post("/game/answer", data={"answer": "corn"})
+
+    client.cookies.clear()
+    relogin(client, "alice")
+    client.post("/game/reveal")
+
+    response = client.get("/game/scoreboard")
+
+    # One group heading, using the first spelling, with both players under it.
+    assert response.text.count('<span class="group-answer">') == 1
+    assert '<span class="group-answer">Corn</span>' in response.text
+    assert "2 players" in response.text
+    assert "badge-unique" not in response.text
+
+
+def test_scoreboard_marks_unique_answers_with_a_badge(client: TestClient):
+    login(client, "alice", wrangler=True)
+    client.post("/game/answer", data={"answer": "corn"})
+
+    client.cookies.clear()
+    login(client, "bob")
+    client.post("/game/answer", data={"answer": "cows"})
+
+    client.cookies.clear()
+    relogin(client, "alice")
+    client.post("/game/reveal")
+
+    response = client.get("/game/scoreboard")
+
+    # Both answers are unique, so both get the badge.
+    assert response.text.count("badge-unique") == 2
+
+
+def test_scoreboard_awards_medal_to_largest_herd(client: TestClient):
+    for name, answer in [("alice", "corn"), ("bob", "corn"), ("carol", "hay")]:
+        client.cookies.clear()
+        if name == "alice":
+            login(client, name, wrangler=True)
+        else:
+            login(client, name)
+        client.post("/game/answer", data={"answer": answer})
+
+    client.cookies.clear()
+    relogin(client, "alice")
+    client.post("/game/reveal")
+
+    response = client.get("/game/scoreboard")
+
+    assert response.text.count("medal") == 1
+    assert '<span class="group-answer">corn</span>' in response.text
+
 
 
 def test_scoreboard_redirects_before_reveal(client: TestClient):

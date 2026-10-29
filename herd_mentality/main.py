@@ -14,6 +14,7 @@ from herd_mentality.auth import (
     login_response,
     register_player,
 )
+from herd_mentality.scoring import group_answers
 from herd_mentality.state import Game_State
 
 app = FastAPI()
@@ -127,17 +128,22 @@ async def next_round(player_name: str = Depends(current_player)):
 async def scoreboard(request: Request, player_name: str = Depends(current_player)):
     if not Game_State["revealed"]:
         return RedirectResponse("/game/answered", status_code=303)
-    # Show every player the same way: name next to the answer they gave.
-    results = [
-        {"player_name": name, "answer": Game_State["answers"].get(name)}
+    # Answered players first, in submission order, so the first spelling wins.
+    items = list(Game_State["answers"].items())
+    # Then anyone who never submitted, so they appear under "did not answer".
+    items += [
+        (name, "")
         for name in sorted(Game_State["player_names"])
+        if name not in Game_State["answers"]
     ]
+    grouped = group_answers(items)
     return templates.TemplateResponse(
         request,
         "scoreboard.html",
         {
             "player_name": player_name,
-            "results": results,
+            "groups": grouped["groups"],
+            "no_answer": grouped["no_answer"],
             "is_wrangler": is_wrangler(player_name),
             "round": Game_State["round"],
         },

@@ -220,38 +220,105 @@ button:focus-visible {
 
 /* ---------- Scoreboard ---------- */
 
-.results {
+.groups {
     margin: 0;
     padding: 0;
     list-style: none;
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: 0.75rem;
     text-align: left;
 }
 
-.results li {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    padding: 0.75rem 1rem;
+.group {
+    padding: 0.9rem 1rem;
     background: var(--pink-soft);
+    border: 2px solid transparent;
     border-radius: var(--radius-input);
 }
 
-.results .name {
+/* The biggest herd gets the medal and a bolder frame. */
+.group.is-winner {
+    border-color: var(--pink);
+    background: var(--paper);
+}
+
+.group-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed rgba(17, 17, 17, 0.15);
+}
+
+.group-answer {
+    font-size: 1.25rem;
     font-weight: 700;
+    color: var(--ink);
+    overflow-wrap: anywhere;
 }
 
-.results .answer-text {
-    color: var(--pink-dark);
-    font-weight: 600;
+.medal {
+    font-size: 1.35rem;
+    line-height: 1;
+}
+
+.group-count {
     margin-left: auto;
-    text-align: right;
+    padding: 0.1rem 0.6rem;
+    color: var(--paper);
+    background: var(--ink);
+    border-radius: var(--radius-pill);
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
 }
 
-.results .answer-text.is-empty {
+.group-names {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.6rem;
+}
+
+.group-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+}
+
+.group-name.is-you {
+    color: var(--pink-dark);
+}
+
+.group-name.is-muted {
     color: var(--muted);
     font-weight: 400;
-    font-style: italic;
+}
+
+.badge-unique {
+    padding: 0.05rem 0.5rem;
+    color: var(--ink);
+    background: var(--pink);
+    border-radius: var(--radius-pill);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.no-answer {
+    padding-top: 1rem;
+    border-top: 2px dashed rgba(17, 17, 17, 0.15);
+    text-align: left;
+}
+
+.no-answer-heading {
+    margin: 0 0 0.5rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
 }
