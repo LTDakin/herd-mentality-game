@@ -60,6 +60,24 @@ def test_root_redirects_to_game_when_logged_in(logged_in_client: TestClient):
     assert response.headers["location"] == "/game"
 
 
+def test_game_redirects_to_answered_once_answered(logged_in_client: TestClient):
+    logged_in_client.post("/game/answer", data={"answer": "cow"})
+
+    response = logged_in_client.get("/game", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/game/answered"
+
+
+def test_root_redirects_to_answered_once_answered(logged_in_client: TestClient):
+    logged_in_client.post("/game/answer", data={"answer": "cow"})
+
+    response = logged_in_client.get("/", follow_redirects=False)
+
+    assert response.status_code == 303
+    assert response.headers["location"] == "/game/answered"
+
+
 def test_game_shows_player_name_when_logged_in(logged_in_client: TestClient):
     response = logged_in_client.get("/game", follow_redirects=False)
 

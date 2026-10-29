@@ -5,9 +5,11 @@ from pathlib import Path
 
 import uvicorn
 from fastapi import Depends, FastAPI, Form, Request
+from fastapi.exception_handlers import http_exception_handler
 from fastapi.responses import RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from herd_mentality.auth import (
     current_player,
@@ -32,9 +34,40 @@ app.mount(
 )
 
 
+def current_page(player_name: str | None) -> str:
+    """The page a player should be looking at right now.
+
+    Mirrors the redirects the routes already make, so a lost or mistyped URL
+    drops the player back where they were instead of onto an error page.
+    """
+    if player_name is None:
+        return "/"
+    # The scoreboard covers everyone still in the game once answers are public.
+    if Game_State["revealed"]:
+        return "/game/scoreboard"
+    if player_name in Game_State["answers"]:
+        return "/game/answered"
+    return "/game"
+
+
+@app.exception_handler(StarletteHTTPException)
+async def unknown_route(request: Request, exc: StarletteHTTPException):
+    """Send lost players to the page that matches the current game state."""
+    # 404 for a missing URL, 405 for the wrong method (e.g. GETting a form
+    # endpoint after a resubmitted page). Both mean "this isn't a real page".
+    # `/static` is left alone: a missing asset should fail for the browser
+    # rather than quietly redirect into a page of HTML.
+    if exc.status_code in (404, 405) and not request.url.path.startswith("/static/"):
+        return RedirectResponse(current_page(logged_in_player(request)), status_code=303)
+    return await http_exception_handler(request, exc)
+
+
 @app.get("/")
 async def root(request: Request):
-    if logged_in_player(request) is not None:
+    player_name = logged_in_player(request)
+    if player_name is not None:
+        if player_name in Game_State["answers"]:
+            return RedirectResponse("/game/answered", status_code=303)
         return RedirectResponse("/game", status_code=303)
     # Only offer the wrangler checkbox while the role is unclaimed.
     return templates.TemplateResponse(
@@ -62,6 +95,10 @@ async def login(
 
 @app.get("/game")
 async def game(request: Request, player_name: str = Depends(current_player)):
+    # A player who already answered and reloads this page keeps waiting on the
+    # answered page rather than seeing the question again.
+    if player_name in Game_State["answers"]:
+        return RedirectResponse("/game/answered", status_code=303)
     return templates.TemplateResponse(
         request, "game.html", {"player_name": player_name}
     )
