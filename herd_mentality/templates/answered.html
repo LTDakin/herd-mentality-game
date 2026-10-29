@@ -1,0 +1,54 @@
+<!doctype html>
+{% from "_cow_rain.html" import cow_rain %}
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Herd Mentality</title>
+        <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+        <link rel="stylesheet" href="/static/style.css" />
+    </head>
+    <body>
+        {{ cow_rain() }}
+        <main class="card">
+            <h1><span class="emoji" aria-hidden="true">🥛</span>Answer locked in</h1>
+            <p class="answer">Your answer: <strong>{{ answer }}</strong></p>
+            {% if is_wrangler %}
+            <form action="/game/reveal" method="post">
+                <button type="submit">Reveal</button>
+            </form>
+            {% else %}
+            <p class="waiting">Waiting for reveal&hellip;</p>
+            {% endif %}
+            <aside class="cow-fact">
+                <span class="cow-fact-label">
+                    <span aria-hidden="true">🐄</span>
+                    {% if cow_fact.type == "joke" %}Cow joke{% else %}Cow fact{% endif %}
+                </span>
+                <p class="cow-fact-text">{{ cow_fact.text }}</p>
+            </aside>
+        </main>
+        <script>
+            // The page was rendered for this round; a newer round means it restarted.
+            const currentRound = {{ round }};
+            // Poll until the wrangler reveals the answers, then show the scoreboard.
+            const checkStatus = async () => {
+                try {
+                    const response = await fetch("/game/status", {
+                        headers: { Accept: "application/json" },
+                    });
+                    if (!response.ok) return;
+                    const { revealed, round } = await response.json();
+                    if (round > currentRound) {
+                        window.location.href = "/game";
+                    } else if (revealed) {
+                        window.location.href = "/game/scoreboard";
+                    }
+                } catch (error) {
+                    // Network hiccup: just try again on the next tick.
+                }
+            };
+            setInterval(checkStatus, 2000);
+        </script>
+    </body>
+</html>

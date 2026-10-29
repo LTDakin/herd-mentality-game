@@ -1,0 +1,25 @@
+{#
+  Decorative cow emoji drifting down behind the card.
+  Randomised per render so the pages don't all look identical.
+  Each item gets its own --spin (degrees) so they tumble at different
+  speeds and directions; negative values spin anticlockwise.
+#}
+{% macro cow_rain() %}
+<div class="cow-rain" aria-hidden="true">
+    {% for emoji, left, delay, duration, size, spin in [
+        ("🐄", 6, 0, 14, 2.2, 360),
+        ("🐮", 18, 5, 18, 1.6, -300),
+        ("🌾", 30, 9, 16, 1.8, 480),
+        ("🐄", 44, 2, 20, 2.6, -540),
+        ("🥛", 56, 11, 17, 1.7, 240),
+        ("🐮", 68, 6, 15, 2.0, -420),
+        ("🔔", 79, 1, 19, 1.6, 300),
+        ("🐄", 90, 8, 22, 2.4, -360),
+    ] %}
+    <span
+        class="cow-rain-item"
+        style="left: {{ left }}%; --delay: {{ delay }}s; --duration: {{ duration }}s; --size: {{ size }}rem; --spin: {{ spin }}deg;"
+    >{{ emoji }}</span>
+    {% endfor %}
+</div>
+{% endmacro %}

@@ -1,0 +1,414 @@
+/* Herd Mentality — black and white with a cow-pink accent. */
+
+:root {
+    --ink: #111111;
+    --paper: #ffffff;
+    --pink: #ff69b4;
+    --pink-dark: #e84f9c;
+    --pink-soft: #ffe4f0;
+    --muted: #6b6b6b;
+    --bg: #fdf7fa;
+
+    --radius-card: 24px;
+    --radius-input: 12px;
+    --radius-pill: 999px;
+
+    --font-stack: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 100%;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    /* Use the dynamic viewport where supported, so mobile browser chrome
+       (and the on-screen keyboard) doesn't clip the layout. */
+    min-height: 100dvh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    background-color: var(--bg);
+    background-image: url("/static/cow_spots.svg");
+    background-repeat: repeat;
+    background-size: 280px 280px;
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: var(--font-stack);
+    font-size: 1.25rem;
+    line-height: 1.5;
+}
+
+/* ---------- Cow rain (decorative background) ---------- */
+
+.cow-rain {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.cow-rain-item {
+    position: absolute;
+    top: -3rem;
+    font-size: var(--size, 2rem);
+    line-height: 1;
+    opacity: 0.55;
+    animation: cow-fall var(--duration, 16s) linear var(--delay, 0s) infinite;
+}
+
+@keyframes cow-fall {
+    0% {
+        transform: translateY(-10vh) rotate(0deg);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.55;
+    }
+    90% {
+        opacity: 0.55;
+    }
+    100% {
+        transform: translateY(110vh) rotate(var(--spin, 360deg));
+        opacity: 0;
+    }
+}
+
+/* Keep the card above the falling emoji. */
+.card {
+    position: relative;
+    z-index: 1;
+}
+
+/* ---------- Card ---------- */
+
+.card {
+    width: 100%;
+    max-width: 32rem;
+    padding: 2.5rem 2rem;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-card);
+    box-shadow: 0 12px 32px rgba(255, 105, 180, 0.22);
+    text-align: center;
+}
+
+.card > * + * {
+    margin-top: 1rem;
+}
+
+/* ---------- Type ---------- */
+
+h1 {
+    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+h1 .emoji {
+    display: block;
+    font-size: 2.75rem;
+    line-height: 1.1;
+    margin-bottom: 0.25rem;
+}
+
+.label-text {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+.player {
+    margin: 0;
+    color: var(--muted);
+    font-size: 1rem;
+}
+
+/* ---------- Forms ---------- */
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin: 0;
+}
+
+label {
+    font-weight: 600;
+    text-align: left;
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 0.85rem 1rem;
+    font: inherit;
+    color: var(--ink);
+    background: var(--paper);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-input);
+    outline: none;
+}
+
+input[type="text"]:focus {
+    border-color: var(--pink);
+    box-shadow: 0 0 0 4px var(--pink-soft);
+}
+
+input[type="text"]::placeholder {
+    color: var(--muted);
+}
+
+/* Checkbox row: label and box side by side, centered. */
+.checkbox-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.6rem;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.checkbox-row input[type="checkbox"] {
+    width: 1.35rem;
+    height: 1.35rem;
+    margin: 0;
+    accent-color: var(--pink);
+    cursor: pointer;
+}
+
+/* ---------- Buttons ---------- */
+
+button {
+    width: 100%;
+    padding: 0.9rem 1.5rem;
+    font: inherit;
+    font-weight: 700;
+    color: var(--ink);
+    background: var(--pink);
+    border: 2px solid var(--ink);
+    border-radius: var(--radius-pill);
+    cursor: pointer;
+    transition: background 0.15s ease, transform 0.1s ease;
+}
+
+button:hover {
+    background: var(--pink-dark);
+}
+
+button:active {
+    transform: translateY(2px);
+}
+
+button:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 4px var(--pink-soft);
+}
+
+/* ---------- Messages ---------- */
+
+.alert {
+    margin: 0;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    background: var(--pink-soft);
+    border-left: 4px solid var(--pink);
+    border-radius: var(--radius-input);
+    font-size: 1rem;
+}
+
+.waiting {
+    margin: 0;
+    color: var(--muted);
+    font-style: italic;
+    font-size: 1rem;
+    animation: pulse 1.8s ease-in-out infinite;
+}
+
+/* Cow trivia shown while waiting for the reveal. */
+.cow-fact {
+    padding: 0.9rem 1rem;
+    text-align: left;
+    background: var(--pink-soft);
+    border-radius: var(--radius-input);
+}
+
+.cow-fact-label {
+    display: block;
+    margin-bottom: 0.35rem;
+    color: var(--pink-dark);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.cow-fact-text {
+    margin: 0;
+    font-size: 1rem;
+    line-height: 1.45;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.45;
+    }
+}
+
+/* Small screens: the on-screen keyboard covers the lower half, so anchor the
+   card near the top instead of centring it. */
+@media (max-width: 600px) {
+    body {
+        align-items: flex-start;
+        padding: 1rem 1rem 2rem;
+        padding-top: max(4rem, env(safe-area-inset-top));
+    }
+
+    .card {
+        padding: 1.75rem 1.25rem;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .waiting {
+        animation: none;
+    }
+    button {
+        transition: none;
+    }
+    .cow-rain {
+        display: none;
+    }
+}
+
+/* ---------- Answered page ---------- */
+
+.answer {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.answer strong {
+    color: var(--ink);
+    font-weight: 700;
+}
+
+/* ---------- Scoreboard ---------- */
+
+.groups {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    text-align: left;
+}
+
+.group {
+    padding: 0.9rem 1rem;
+    background: var(--pink-soft);
+    border: 2px solid transparent;
+    border-radius: var(--radius-input);
+}
+
+/* The biggest herd gets the medal and a bolder frame. */
+.group.is-winner {
+    border-color: var(--pink);
+    background: var(--paper);
+}
+
+.group-header {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed rgba(17, 17, 17, 0.15);
+}
+
+.group-answer {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--ink);
+    overflow-wrap: anywhere;
+}
+
+.medal {
+    font-size: 1.35rem;
+    line-height: 1;
+}
+
+.group-count {
+    margin-left: auto;
+    padding: 0.1rem 0.6rem;
+    color: var(--paper);
+    background: var(--ink);
+    border-radius: var(--radius-pill);
+    font-size: 0.8rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.group-names {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.6rem;
+}
+
+.group-name {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+}
+
+.group-name.is-you {
+    color: var(--pink-dark);
+}
+
+.group-name.is-muted {
+    color: var(--muted);
+    font-weight: 400;
+}
+
+.badge-unique {
+    padding: 0.05rem 0.5rem;
+    color: var(--ink);
+    background: var(--pink);
+    border-radius: var(--radius-pill);
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.no-answer {
+    padding-top: 1rem;
+    border-top: 2px dashed rgba(17, 17, 17, 0.15);
+    text-align: left;
+}
+
+.no-answer-heading {
+    margin: 0 0 0.5rem;
+    color: var(--muted);
+    font-size: 0.9rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}

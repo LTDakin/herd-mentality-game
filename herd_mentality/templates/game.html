@@ -1,13 +1,27 @@
 <!doctype html>
-<html>
+{% from "_cow_rain.html" import cow_rain %}
+<html lang="en">
     <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Herd Mentality</title>
+        <link rel="icon" href="/static/favicon.svg" type="image/svg+xml" />
+        <link rel="stylesheet" href="/static/style.css" />
     </head>
     <body>
-        <form action="/answer" method="post">
-            <label for="answer">Answer</label>
-            <input type="text" id="answer" name="answer" required />
-            <button type="submit">Submit</button>
-        </form>
+        {{ cow_rain() }}
+        <main class="card">
+            <h1><span class="emoji" aria-hidden="true">🌾</span>Your answer</h1>
+            <p class="player">Playing as {{ player_name }}</p>
+            <form action="/game/answer" method="post">
+                <div>
+                    <label class="label-text" for="answer">
+                        What is your answer?
+                    </label>
+                    <input type="text" id="answer" name="answer" required />
+                </div>
+                <button type="submit">Submit</button>
+            </form>
+        </main>
     </body>
 </html>
