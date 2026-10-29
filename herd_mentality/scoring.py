@@ -1,17 +1,41 @@
 """Group revealed answers so the scoreboard reads like a herd, not a list."""
 
 import re
+import string
 
 WHITESPACE = re.compile(r"\s+")
+APOSTROPHES = re.compile(r"['\u2019]")
+PUNCTUATION = str.maketrans("", "", string.punctuation)
 
 
 def normalise(answer: str) -> str:
-    """Collapse whitespace and case so 'Ice  CREAM' matches 'ice cream'."""
-    return WHITESPACE.sub(" ", answer.strip()).casefold()
+    """Reduce an answer to the form used for matching.
+
+    Case, whitespace, punctuation and word breaks are ignored, so 'Ice-CREAM!'
+    and 'ice cream' both become 'icecream'.
+    """
+    # Apostrophes go first so "farmer's" and "farmers" agree.
+    text = APOSTROPHES.sub("", answer.casefold())
+    # Drop punctuation and spaces together so "ice-cream", "ice cream" and
+    # "icecream" all collapse to the same word.
+    text = WHITESPACE.sub("", text).translate(PUNCTUATION)
+    return text
+
+
+def singular(word: str) -> str:
+    """Strip a trailing plural 's', so 'cows' matches 'cow'."""
+    if len(word) > 3 and word.endswith("s") and not word.endswith("ss"):
+        return word[:-1]
+    return word
+
+
+def match_key(answer: str) -> str:
+    """The key two answers must share to be scored as the same herd."""
+    return singular(normalise(answer))
 
 
 def group_answers(items: list[tuple[str, str]]) -> dict:
-    """Group (player_name, answer) pairs by their normalised answer.
+    """Group (player_name, answer) pairs by their matching key.
 
     `items` must be in submission order: the first spelling seen for an answer
     is the one shown, and that group is listed before later-created groups.
@@ -23,10 +47,11 @@ def group_answers(items: list[tuple[str, str]]) -> dict:
     no_answer: list[str] = []
 
     for player_name, answer in items:
-        key = normalise(answer)
-        if not key:
+        whole = normalise(answer)
+        if not whole:
             no_answer.append(player_name)
             continue
+        key = match_key(answer)
         bucket = buckets.get(key)
         if bucket is None:
             buckets[key] = {"answer": answer.strip(), "players": [player_name]}

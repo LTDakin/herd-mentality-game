@@ -128,4 +128,70 @@ def test_empty_round_produces_nothing():
 
 
 def test_normalise_collapses_case_and_whitespace():
-    assert normalise("  Ice   CREAM ") == "ice cream"
+    assert normalise("  Ice   CREAM ") == "icecream"
+
+
+def test_normalise_ignores_punctuation():
+    assert normalise("Corn!") == "corn"
+    assert normalise("corn?") == normalise("corn")
+
+
+def test_normalise_ignores_word_breaks():
+    assert normalise("ice-cream") == "icecream"
+    assert normalise("ice cream") == "icecream"
+    assert normalise("ice_cream") == "icecream"
+
+
+def test_normalise_treats_apostrophes_as_nothing():
+    assert normalise("farmer's") == "farmers"
+
+
+def test_punctuation_and_spacing_are_grouped():
+    result = answers(
+        ("Tai", "ice cream"),
+        ("Maggie", "Ice-Cream!"),
+        ("Bob", "icecream"),
+    )
+
+    assert len(result["groups"]) == 1
+    assert result["groups"][0]["players"] == ["Bob", "Maggie", "Tai"]
+
+
+def test_plural_and_singular_are_grouped():
+    result = answers(("Tai", "cow"), ("Maggie", "Cows"), ("Bob", "cow,"))
+
+    assert len(result["groups"]) == 1
+    assert result["groups"][0]["players"] == ["Bob", "Maggie", "Tai"]
+    assert result["groups"][0]["answer"] == "cow"
+
+
+def test_words_ending_in_double_s_are_not_singularised():
+    result = answers(("Tai", "grass"), ("Maggie", "gras"))
+
+    assert len(result["groups"]) == 2
+
+
+def test_different_answers_are_still_separate():
+    result = answers(("Tai", "corn"), ("Maggie", "cows"))
+
+    assert len(result["groups"]) == 2
+    assert all(group["is_unique"] for group in result["groups"])
+
+
+def test_punctuation_only_answer_counts_as_no_answer():
+    result = answers(("Tai", "corn"), ("Maggie", "!!!"))
+
+    assert result["no_answer"] == ["Maggie"]
+    assert len(result["groups"]) == 1
+
+
+def test_plural_merge_can_decide_the_winner():
+    result = answers(
+        ("Tai", "corn"),
+        ("Maggie", "cows"),
+        ("Bob", "cow"),
+    )
+
+    winner = [group for group in result["groups"] if group["is_winner"]]
+    assert len(winner) == 1
+    assert winner[0]["answer"] == "cows"
