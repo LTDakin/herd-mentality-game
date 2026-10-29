@@ -4,6 +4,7 @@
         <title>Enter a name</title>
     </head>
     <body><form action="/login" method="post">
+        {% if error %}<p role="alert">{{ error }}</p>{% endif %}
         <label for="player_name">Enter a name!</label>
         <input type="text" id="player_name" name="player_name" required/>
         <button type="submit">Ready!</button>
