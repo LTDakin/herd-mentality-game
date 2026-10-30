@@ -11,12 +11,15 @@
     <body>
         {{ cow_rain() }}
         <main class="card">
+            {% if round_started %}
+            <p class="timer" id="timer" aria-live="off">
+                Closes in <strong id="timer-value">0:00</strong>
+            </p>
+            {% endif %}
             <h1><span class="emoji" aria-hidden="true">🌾</span>{{ question }}</h1>
             <p class="player">Playing as {{ player_name }}</p>
             {% if round_started %}
-            <p class="timer" id="timer" aria-live="off">
-                Answers close in <strong id="timer-value">0:00</strong>
-            </p>
+            {# The clock itself sits in the corner; nothing extra to show here. #}
             {% elif is_wrangler %}
             <form action="/game/start" method="post">
                 <button type="submit">Start the round</button>
