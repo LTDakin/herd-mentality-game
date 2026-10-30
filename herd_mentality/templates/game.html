@@ -11,17 +11,98 @@
     <body>
         {{ cow_rain() }}
         <main class="card">
-            <h1><span class="emoji" aria-hidden="true">🌾</span>Your answer</h1>
+            {% if round_started %}
+            <p class="timer" id="timer" aria-live="off">
+                Closes in <strong id="timer-value">0:00</strong>
+            </p>
+            {% endif %}
+            <h1><span class="emoji" aria-hidden="true">🌾</span>{{ question }}</h1>
             <p class="player">Playing as {{ player_name }}</p>
-            <form action="/game/answer" method="post">
+            {% if round_started %}
+            {# The clock itself sits in the corner; nothing extra to show here. #}
+            {% elif is_wrangler %}
+            <form action="/game/start" method="post">
+                <button type="submit">Start the round</button>
+            </form>
+            <p class="waiting">Everyone answers once you start.</p>
+            {% else %}
+            <p class="waiting">Waiting for the wrangler to start&hellip;</p>
+            {% endif %}
+            <form action="/game/answer" method="post" id="answer-form">
                 <div>
                     <label class="label-text" for="answer">
-                        What is your answer?
+                        What will the herd say?
                     </label>
-                    <input type="text" id="answer" name="answer" required />
+                    <input type="text" id="answer" name="answer" required
+                        {% if not round_started %}disabled{% endif %} />
                 </div>
-                <button type="submit">Submit</button>
+                <button type="submit" {% if not round_started %}disabled{% endif %}>
+                    Submit
+                </button>
             </form>
         </main>
+        <script>
+            // This page was rendered for this round; a newer round means it restarted.
+            const currentRound = {{ round }};
+            let roundStarted = {{ "true" if round_started else "false" }};
+            // Count down locally rather than polling every second. The server
+            // decides whether an answer is in time, so small drift is fine.
+            let secondsLeft = {{ seconds_left }};
+            const timer = document.getElementById("timer");
+            const timerValue = document.getElementById("timer-value");
+            const form = document.getElementById("answer-form");
+
+            const lockForm = () => {
+                form.querySelectorAll("input, button").forEach((el) => {
+                    el.disabled = true;
+                });
+            };
+
+            const renderTimer = () => {
+                if (timerValue) {
+                    const minutes = Math.floor(secondsLeft / 60);
+                    const seconds = String(secondsLeft % 60).padStart(2, "0");
+                    timerValue.textContent = `${minutes}:${seconds}`;
+                }
+            };
+
+            const tick = () => {
+                renderTimer();
+                if (secondsLeft <= 0) {
+                    lockForm();
+                    return;
+                }
+                secondsLeft -= 1;
+            };
+
+            if (timer) {
+                tick();
+                setInterval(tick, 1000);
+            }
+
+            // Poll so a player already on this page sees the clock start, and
+            // so everyone moves to the scoreboard together when it runs out.
+            const checkStatus = async () => {
+                try {
+                    const response = await fetch("/game/status", {
+                        headers: { Accept: "application/json" },
+                    });
+                    if (!response.ok) return;
+                    const { revealed, round, seconds_left } = await response.json();
+                    if (round > currentRound) {
+                        window.location.href = "/game";
+                    } else if (revealed) {
+                        window.location.href = "/game/scoreboard";
+                    } else if (!roundStarted && seconds_left > 0) {
+                        // The wrangler started the clock while this page was
+                        // open, so reload to pick up the timer.
+                        window.location.reload();
+                    }
+                } catch (error) {
+                    // Network hiccup: just try again on the next tick.
+                }
+            };
+            setInterval(checkStatus, 2000);
+        </script>
     </body>
 </html>

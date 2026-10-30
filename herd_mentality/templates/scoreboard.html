@@ -12,6 +12,7 @@
         {{ cow_rain() }}
         <main class="card">
             <h1><span class="emoji" aria-hidden="true">🔔</span>The herd has spoken</h1>
+            <p class="question">{{ question }}</p>
             <ul class="groups">
                 {% for group in groups %}
                 <li class="group{% if group.is_winner %} is-winner{% endif %}">

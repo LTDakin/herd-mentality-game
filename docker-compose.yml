@@ -1,0 +1,14 @@
+services:
+  herd-mentality:
+    build: .
+    image: herd-mentality:latest
+    container_name: herd-mentality
+    ports:
+      # Host port comes from options.env / the shell (PORT=9000 dc up);
+      # inside the container the app always listens on 8000.
+      - "${PORT:-8000}:8000"
+    environment:
+      PORT: 8000
+      HOST: 0.0.0.0
+      RELOAD: 0
+    restart: unless-stopped

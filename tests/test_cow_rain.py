@@ -2,6 +2,9 @@
 
 from fastapi.testclient import TestClient
 
+from herd_mentality.state import Game_State
+from round_clock import start_clock
+
 PAGES = ["login", "game", "answered", "scoreboard"]
 
 
@@ -9,12 +12,13 @@ def _render(client: TestClient, page: str) -> str:
     if page == "login":
         return client.get("/").text
     client.post("/login", data={"player_name": "alice", "wrangler": "on"})
+    start_clock()
     if page == "game":
         return client.get("/game").text
     client.post("/game/answer", data={"answer": "cow"})
     if page == "answered":
         return client.get("/game/answered").text
-    client.post("/game/reveal")
+    Game_State["round_ends_at"] = 0
     return client.get("/game/scoreboard").text
 
 

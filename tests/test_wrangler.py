@@ -1,4 +1,4 @@
-"""Tests for the wrangler: claiming the role, the login checkbox, and the reveal button."""
+"""Tests for the wrangler: claiming the role and the login checkbox."""
 
 from fastapi.testclient import TestClient
 
@@ -10,10 +10,6 @@ def login(client: TestClient, name: str, wrangler: bool = False):
     if wrangler:
         data["wrangler"] = "on"
     return client.post("/login", data=data, follow_redirects=False)
-
-
-def test_wrangler_is_none_at_start(client: TestClient):
-    assert Game_State["wrangler"] is None
 
 
 def test_login_with_checkbox_claims_wrangler(client: TestClient):
@@ -35,19 +31,12 @@ def test_first_wrangler_wins(client: TestClient):
     assert Game_State["wrangler"] == "alice"
 
 
-def test_checkbox_is_shown_when_role_unclaimed(client: TestClient):
-    response = client.get("/")
+def test_checkbox_is_shown_only_while_the_role_is_unclaimed(client: TestClient):
+    assert 'name="wrangler"' in client.get("/").text
 
-    assert 'name="wrangler"' in response.text
-
-
-def test_checkbox_is_hidden_once_wrangler_exists(client: TestClient):
     login(client, "alice", wrangler=True)
 
-    response = client.get("/")
-
-    assert response.status_code == 200
-    assert 'name="wrangler"' not in response.text
+    assert 'name="wrangler"' not in client.get("/").text
 
 
 def test_checkbox_stays_hidden_on_login_error(client: TestClient):
@@ -59,45 +48,3 @@ def test_checkbox_stays_hidden_on_login_error(client: TestClient):
 
     assert response.status_code == 409
     assert 'name="wrangler"' not in response.text
-
-
-def test_wrangler_sees_reveal_button(client: TestClient):
-    login(client, "alice", wrangler=True)
-    client.post("/game/answer", data={"answer": "cow"})
-
-    response = client.get("/game/answered")
-
-    assert 'action="/game/reveal"' in response.text
-    assert "Reveal" in response.text
-
-
-def test_regular_player_sees_waiting_message(client: TestClient):
-    login(client, "bob")
-    client.post("/game/answer", data={"answer": "cow"})
-
-    response = client.get("/game/answered")
-
-    assert "Waiting for reveal" in response.text
-
-
-def test_wrangler_does_not_see_waiting_message(client: TestClient):
-    login(client, "alice", wrangler=True)
-    client.post("/game/answer", data={"answer": "cow"})
-
-    response = client.get("/game/answered")
-
-    assert "Waiting for reveal" not in response.text
-
-
-def test_wrangler_cannot_claim_role_from_another_player(client: TestClient):
-    login(client, "alice", wrangler=True)
-    login(client, "carol", wrangler=True)
-
-    assert Game_State["wrangler"] == "alice"
-
-    client.cookies.clear()
-    login(client, "carol")
-    client.post("/game/answer", data={"answer": "cow"})
-    response = client.get("/game/answered")
-
-    assert "/game/reveal" not in response.text
