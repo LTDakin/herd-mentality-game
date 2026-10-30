@@ -3,8 +3,9 @@
 from fastapi.testclient import TestClient
 
 from herd_mentality.auth import player_name_cookie_key
+from round_clock import start_clock
 
-PROTECTED_PAGES = ["/game", "/game/answered"]
+LOGIN_REQUIRED = ["/game", "/game/answered", "/game/scoreboard", "/game/status"]
 
 
 def test_root_shows_login_when_logged_out(client: TestClient):
@@ -60,22 +61,15 @@ def test_root_redirects_to_game_when_logged_in(logged_in_client: TestClient):
     assert response.headers["location"] == "/game"
 
 
-def test_game_redirects_to_answered_once_answered(logged_in_client: TestClient):
+def test_answered_player_is_sent_to_their_waiting_page(logged_in_client: TestClient):
+    start_clock()
     logged_in_client.post("/game/answer", data={"answer": "cow"})
 
-    response = logged_in_client.get("/game", follow_redirects=False)
+    for page in ["/", "/game"]:
+        response = logged_in_client.get(page, follow_redirects=False)
 
-    assert response.status_code == 303
-    assert response.headers["location"] == "/game/answered"
-
-
-def test_root_redirects_to_answered_once_answered(logged_in_client: TestClient):
-    logged_in_client.post("/game/answer", data={"answer": "cow"})
-
-    response = logged_in_client.get("/", follow_redirects=False)
-
-    assert response.status_code == 303
-    assert response.headers["location"] == "/game/answered"
+        assert response.status_code == 303, page
+        assert response.headers["location"] == "/game/answered", page
 
 
 def test_game_shows_player_name_when_logged_in(logged_in_client: TestClient):
@@ -86,29 +80,21 @@ def test_game_shows_player_name_when_logged_in(logged_in_client: TestClient):
 
 
 def test_protected_pages_redirect_when_logged_out(client: TestClient):
-    for page in PROTECTED_PAGES:
+    for page in LOGIN_REQUIRED:
         response = client.get(page, follow_redirects=False)
 
         assert response.status_code == 303, page
         assert response.headers["location"] == "/", page
 
 
-def test_game_redirects_for_unknown_cookie_value(client: TestClient):
-    client.cookies.set(player_name_cookie_key, "ghost")
+def test_game_redirects_for_unknown_or_empty_cookie(client: TestClient):
+    for cookie in ["ghost", ""]:
+        client.cookies.set(player_name_cookie_key, cookie)
 
-    response = client.get("/game", follow_redirects=False)
+        response = client.get("/game", follow_redirects=False)
 
-    assert response.status_code == 303
-    assert response.headers["location"] == "/"
-
-
-def test_game_redirects_for_empty_cookie(client: TestClient):
-    client.cookies.set(player_name_cookie_key, "")
-
-    response = client.get("/game", follow_redirects=False)
-
-    assert response.status_code == 303
-    assert response.headers["location"] == "/"
+        assert response.status_code == 303, cookie
+        assert response.headers["location"] == "/", cookie
 
 
 def test_answering_redirects_when_logged_out(client: TestClient):

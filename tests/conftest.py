@@ -11,8 +11,10 @@ def reset_game_state():
     Game_State["player_names"].clear()
     Game_State["answers"].clear()
     Game_State["wrangler"] = None
-    Game_State["revealed"] = False
     Game_State["round"] = 0
+    Game_State["question"] = None
+    Game_State["questions_left"] = []
+    Game_State["round_ends_at"] = None
     yield
 
 

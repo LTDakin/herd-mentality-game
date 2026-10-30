@@ -38,8 +38,9 @@ Open `http://<pi-ip>:8000`. If a firewall is enabled: `sudo ufw allow 8000/tcp`.
 
 1. Host opens `http://<host-ip>:8000`, logs in, ticks "wrangler".
 2. Everyone else opens the same address and logs in with a unique name.
-3. Everyone answers. Wrangler hits reveal to see the scoreboard.
-4. Wrangler hits next round.
+3. Wrangler hits start. Everyone has 30 seconds to answer the round's prompt;
+   the scoreboard appears on its own when the clock runs out.
+4. Wrangler hits next round, which deals a new prompt and a new 30 seconds.
 
 ## Development
 

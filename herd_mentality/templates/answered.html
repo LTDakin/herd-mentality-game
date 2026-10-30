@@ -13,13 +13,12 @@
         <main class="card">
             <h1><span class="emoji" aria-hidden="true">🥛</span>Answer locked in</h1>
             <p class="answer">Your answer: <strong>{{ answer }}</strong></p>
-            {% if is_wrangler %}
-            <form action="/game/reveal" method="post">
-                <button type="submit">Reveal</button>
-            </form>
-            {% else %}
-            <p class="waiting">Waiting for reveal&hellip;</p>
+            {% if round_started %}
+            <p class="timer" id="timer" aria-live="off">
+                Answers close in <strong id="timer-value">0:00</strong>
+            </p>
             {% endif %}
+            <p class="waiting">Waiting for the clock to run out&hellip;</p>
             <aside class="cow-fact">
                 <span class="cow-fact-label">
                     <span aria-hidden="true">🐄</span>
@@ -31,7 +30,24 @@
         <script>
             // The page was rendered for this round; a newer round means it restarted.
             const currentRound = {{ round }};
-            // Poll until the wrangler reveals the answers, then show the scoreboard.
+            // Local countdown; the server's clock is what actually counts.
+            let secondsLeft = {{ seconds_left }};
+            const timerValue = document.getElementById("timer-value");
+            const renderTimer = () => {
+                if (!timerValue) return;
+                const minutes = Math.floor(secondsLeft / 60);
+                const seconds = String(secondsLeft % 60).padStart(2, "0");
+                timerValue.textContent = `${minutes}:${seconds}`;
+            };
+            const tick = () => {
+                renderTimer();
+                if (secondsLeft > 0) secondsLeft -= 1;
+            };
+            if (timerValue) {
+                tick();
+                setInterval(tick, 1000);
+            }
+            // Poll until the clock runs out, then show the scoreboard.
             const checkStatus = async () => {
                 try {
                     const response = await fetch("/game/status", {
